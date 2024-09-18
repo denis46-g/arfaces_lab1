@@ -9,6 +9,7 @@ import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.AugmentedFaceNode
+import kotlinx.android.synthetic.main.activity_hats.button_next_hat
 
 class CustomFaceNode(augmentedFace: AugmentedFace?,
                  val context: Context
@@ -18,20 +19,26 @@ class CustomFaceNode(augmentedFace: AugmentedFace?,
     private var eyeNodeRight: Node? = null
     private var mustacheNode: Node? = null
     private var clownNoseNode: Node? = null
+    //private var hatNode: Node? = null
+    private var borodaNode: Node? = null
+    private var hairNode: Node? = null
 
     companion object {
         enum class FaceRegion {
             LEFT_EYE,
             RIGHT_EYE,
             MUSTACHE,
-            CLOWN_NOSE
+            CLOWN_NOSE,
+            //HAT
+            BORODA,
+            HAIR
         }
     }
 
     override fun onActivate() {
         super.onActivate()
 
-        if(!clown_nose){
+        if(!clown_nose && !boroda_and_hair){
             eyeNodeLeft = Node()
             eyeNodeLeft?.setParent(this)
 
@@ -73,7 +80,7 @@ class CustomFaceNode(augmentedFace: AugmentedFace?,
                     )
                 }
         }
-        else{
+        else if (!boroda_and_hair){
             clownNoseNode = Node()
             clownNoseNode?.setParent(this)
 
@@ -93,6 +100,46 @@ class CustomFaceNode(augmentedFace: AugmentedFace?,
                     )
                 }
         }
+        else if(!clown_nose){
+            borodaNode = Node()
+            borodaNode?.setParent(this)
+
+            hairNode = Node()
+            hairNode?.setParent(this)
+
+            ViewRenderable.builder()
+                .setView(context, R.layout.element_layout)
+                .build()
+                .thenAccept { uiRenderable: ViewRenderable ->
+                    uiRenderable.isShadowCaster = false
+                    uiRenderable.isShadowReceiver = false
+                    borodaNode?.renderable = uiRenderable
+                    uiRenderable.view.findViewById<ImageView>(R.id.element_image).setImageResource(R.drawable.boroda)
+                }
+                .exceptionally { throwable: Throwable? ->
+                    throw AssertionError(
+                        "Could not create ui element",
+                        throwable
+                    )
+                }
+            ViewRenderable.builder()
+                .setView(context, R.layout.element_layout)
+                .build()
+                .thenAccept { uiRenderable: ViewRenderable ->
+                    uiRenderable.isShadowCaster = false
+                    uiRenderable.isShadowReceiver = false
+                    hairNode?.renderable = uiRenderable
+                    uiRenderable.view.findViewById<ImageView>(R.id.element_image).setImageResource(R.drawable.hair)
+                }
+                .exceptionally { throwable: Throwable? ->
+                    throw AssertionError(
+                        "Could not create ui element",
+                        throwable
+                    )
+                }
+
+        }
+
     }
 
     private fun getRegionPose(region: FaceRegion) : Vector3? {
@@ -108,6 +155,18 @@ class CustomFaceNode(augmentedFace: AugmentedFace?,
                         buffer.get(11 * 3 + 1),
                         buffer.get(11 * 3 + 2))
                 FaceRegion.CLOWN_NOSE ->
+                    Vector3(buffer.get(15 * 2),
+                        buffer.get(15 * 2 + 1),
+                        buffer.get(15 * 2 + 2))
+                /*FaceRegion.HAT ->
+                    Vector3(buffer.get(15 * 2),
+                        buffer.get(15 * 2 + 1),
+                        buffer.get(15 * 2 + 2))*/
+                FaceRegion.BORODA ->
+                    Vector3(buffer.get(15 * 2),
+                        buffer.get(15 * 2 + 1),
+                        buffer.get(15 * 2 + 2))
+                FaceRegion.HAIR ->
                     Vector3(buffer.get(15 * 2),
                         buffer.get(15 * 2 + 1),
                         buffer.get(15 * 2 + 2))
@@ -139,6 +198,21 @@ class CustomFaceNode(augmentedFace: AugmentedFace?,
             getRegionPose(FaceRegion.CLOWN_NOSE)?.let {
                 clownNoseNode?.localPosition = Vector3(it.x, it.y - 0.14f, it.z + 0.045f)
                 clownNoseNode?.localScale = Vector3(0.04f, 0.04f, 0.04f)
+            }
+
+            /*getRegionPose(FaceRegion.HAT)?.let {
+                hatNode?.localPosition = Vector3(it.x, it.y - 0.07f, it.z + 0.045f)
+                hatNode?.localScale = Vector3(0.09f, 0.09f, 0.09f)
+            }*/
+
+            getRegionPose(FaceRegion.BORODA)?.let {
+                borodaNode?.localPosition = Vector3(it.x, it.y - 0.28f, it.z + 0.045f)
+                borodaNode?.localScale = Vector3(0.15f, 0.15f, 0.15f)
+            }
+
+            getRegionPose(FaceRegion.HAIR)?.let {
+                hairNode?.localPosition = Vector3(it.x, it.y - 0.08f, it.z + 0.045f)
+                hairNode?.localScale = Vector3(0.19f, 0.19f, 0.19f)
             }
         }
     }

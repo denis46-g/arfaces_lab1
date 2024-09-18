@@ -6,6 +6,8 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 
 var clown_nose = false
+//var hats = false
+var boroda_and_hair = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,20 +29,29 @@ class MainActivity : AppCompatActivity() {
 
         button_face_landmarks.setOnClickListener {
             clown_nose = false
+            //hats = false
+            boroda_and_hair = false
             startActivity(Intent(this, FaceLandmarksActivity::class.java))
         }
 
         button_clown_nose.setOnClickListener{
             clown_nose = true
+            //hats = false
+            boroda_and_hair = false
             startActivity(Intent(this, ClownNoseActivity::class.java))
         }
 
-        button_hats.setOnClickListener{
-            startActivity(Intent(this, FaceLandmarksActivity::class.java))
-        }
+        /*button_hats.setOnClickListener{
+            //hats = true
+            //clown_nose = false
+            startActivity(Intent(this, HatsActivity::class.java))
+        }*/
 
         button_boroda_and_hair.setOnClickListener{
-            startActivity(Intent(this, FaceLandmarksActivity::class.java))
+            clown_nose = false
+            //hats = false
+            boroda_and_hair = true
+            startActivity(Intent(this, BorodaAndHairActivity::class.java))
         }
 
     }
